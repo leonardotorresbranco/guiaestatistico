@@ -66,7 +66,14 @@
                 verticalAlign: 'middle',
                 align: 'middle',
                 fontSize: 9,
-                formatter: function(info){return `${info.data.name} (${((info.data.value)*100).toFixed(2)}%)`;}
+                formatter: function(info){
+                  
+                  if (info.data._id === chartData._id) {
+                    return `USP-SP 2023 R1`;
+                  } else {
+                    return `${info.data.name} (${((info.data.value) * 100).toFixed(2)}%)`;
+                  }
+                }
               },
               leaves: {
                 label: {

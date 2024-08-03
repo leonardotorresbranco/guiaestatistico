@@ -1,16 +1,16 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_file
 import json
 from collections import defaultdict, Counter
 
 app = Flask(__name__)
 
 # Carregar dados do arquivo JSON
-with open('api/qbank.qbank_prebuilt_tests_porinst.json', 'r', encoding='utf-8') as f:
+with open('qbank.qbank_prebuilt_tests_porinst.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 @app.route('/')
 def index():
-    return send_from_directory('../public', 'index.html')
+    return send_file('index.html')
 
 @app.route('/filter_data', methods=['POST'])
 def filter_data():

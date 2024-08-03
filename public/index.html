@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECharts Hierarchical Data</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+  <style>
+    #chart {
+      width: 100%;
+      height: 800px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Selecione a Instituição e o Intervalo de Anos</h1>
+  <form id="dataForm">
+    <label for="institution">Instituição:</label>
+    <select id="institution" name="institution">
+      <option value="1">USP-SP</option>
+      <option value="2">ENARE</option>
+      <option value="3">UNICAMP</option>
+      <!-- Adicione mais opções conforme necessário -->
+    </select>
+
+    <br><br>
+
+    <label for="startYear">Ano Inicial:</label>
+    <input type="number" id="startYear" name="startYear" min="2021" max="2024" value="2023">
+
+    <br><br>
+
+    <label for="endYear">Ano Final:</label>
+    <input type="number" id="endYear" name="endYear" min="2021" max="2024" value="2023">
+
+    <br><br>
+
+    <button type="button" onclick="submitData()">Enviar</button>
+  </form>
+
+  <div id="chart"></div>
+
+  <script>
+    function submitData() {
+      const institution = document.getElementById('institution').value;
+      const startYear = document.getElementById('startYear').value;
+      const endYear = document.getElementById('endYear').value;
+
+      fetch('/api/filter_data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ institution, startYear, endYear }),
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log(data);
+        renderChart(data);  // Atualize a apresentação gráfica com os dados recebidos
+      })
+      .catch(error => {
+        console.error('There has been a problem with your fetch operation:', error);
+      });
+    }
+
+    // Função para converter dados JSON para o formato ECharts e ordenar as folhas
+    function transformData(data) {
+      function processNode(node) {
+        var isnode = false;
+        if(node.children.length>0){
+          isnode = true;
+        }
+
+        const result = {
+          name: node.name,
+          children: node.children ? node.children.map(processNode) : [],
+          value: node.frequency || 0,
+          absoluteValue: node.absoluteValue,
+          depth: isnode
+        };
+        
+        // Ordenar os filhos pela frequência
+        if (result.children.length > 0) {
+          result.children.sort((a, b) => b.value - a.value);
+        }
+        
+        return result;
+      }
+      return processNode(data);
+    }
+
+    // Função para renderizar o gráfico ECharts
+    function renderChart(data) {
+      const chartData = transformData(data);
+      var institutione = document.getElementById('institution');
+      // Inicializa o gráfico ECharts
+      var chart = echarts.init(document.getElementById('chart'));
+
+      var option = {
+        title: {
+          text: 'Guia estatístico MedCof', // Adiciona o título do gráfico
+          left: 'center', // Alinha o título ao centro
+          top: 'top', // Posiciona o título no topo
+          textStyle: {
+            fontSize: 18, // Tamanho da fonte do título
+            fontWeight: 'bold' // Peso da fonte do título
+          }
+        },
+        tooltip: {
+          trigger: 'item',
+          triggerOn: 'mousemove',
+          formatter: function(info) {
+            //return `${info.data.name} (${((info.data.value) * 100).toFixed(2)}%)`;
+            if(!info.data.depth){
+              return `Essa tag já foi cobrada ${info.data.absoluteValue} vezes no período selecionado`;
+            }else if(info.data.name === "Tags"){
+              return institutione.options[institutione.selectedIndex].text;
+            }
+            else{            
+              return `${info.data.name} (${((info.data.value) * 100).toFixed(2)}%)`;
+            }
+          }
+        },
+        series: [{
+          type: 'tree',
+          data: [chartData],
+          top: '5%',
+          left: '10%',
+          bottom: '2%',
+          right: '20%',
+          symbolSize: 10,
+          label: {
+            position: 'up',
+            verticalAlign: 'middle',
+            align: 'middle',
+            fontSize: 9,
+            formatter: function(info) {
+              if (info.data.name === "Tags") {
+                return institutione.options[institutione.selectedIndex].text;
+              } else {
+                return `${info.data.name} (${((info.data.value) * 100).toFixed(2)}%)`;
+              }
+            }
+          },
+          leaves: {
+            label: {
+              position: 'right',
+              verticalAlign: 'middle',
+              align: 'left',
+              formatter: function(info) {
+                return `${info.data.name} (${((info.data.value) * 100).toFixed(2)}%)`;
+              }
+            }
+          },
+          lineStyle: {
+            width: 2,
+            color: '#000'
+          },
+          emphasis: {
+            focus: 'descendant'
+          },
+          expandAndCollapse: true,
+          initialTreeDepth: 1,
+          animationDuration: 550,
+          animationDurationUpdate: 750
+        }]
+      };
+
+      chart.setOption(option);
+    }
+
+    // Carrega o gráfico com os dados padrão
+    submitData();
+  </script>
+</body>
+</html>

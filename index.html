@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ECharts Hierarchical Data</title>
+  <title>Guia Estatístico MedCof</title>
   <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
   <style>
     #chart {
@@ -17,21 +17,19 @@
   <form id="dataForm">
     <label for="institution">Instituição:</label>
     <select id="institution" name="institution">
-      <option value="1">USP-SP</option>
-      <option value="2">ENARE</option>
-      <option value="3">UNICAMP</option>
+        
       <!-- Adicione mais opções conforme necessário -->
     </select>
 
     <br><br>
 
     <label for="startYear">Ano Inicial:</label>
-    <input type="number" id="startYear" name="startYear" min="2021" max="2024" value="2023">
+    <input type="number" id="startYear" name="startYear" min="2020" max="2024" value="2020">
 
     <br><br>
 
     <label for="endYear">Ano Final:</label>
-    <input type="number" id="endYear" name="endYear" min="2021" max="2024" value="2023">
+    <input type="number" id="endYear" name="endYear" min="2020" max="2024" value="2024">
 
     <br><br>
 
@@ -39,6 +37,22 @@
   </form>
 
   <div id="chart"></div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      fetch('/institutions')
+        .then(response => response.json())
+        .then(data => {
+          const dropdown = document.getElementById('institution');
+          data.forEach(institution => {
+            const option = document.createElement('option');
+            option.value = institution.id;
+            option.text = institution.name;
+            dropdown.appendChild(option);
+          });
+        })
+        .catch(error => console.error('Erro ao carregar instituições:', error));
+    });
+  </script>
 
   <script>
     function submitData() {
@@ -60,7 +74,7 @@
         return response.json();
       })
       .then(data => {
-        console.log(data);
+        //console.log(data);
         renderChart(data);  // Atualize a apresentação gráfica com os dados recebidos
       })
       .catch(error => {
@@ -121,8 +135,9 @@
             }else if(info.data.name === "Tags"){
               return institutione.options[institutione.selectedIndex].text;
             }
-            else{            
-              return `${info.data.name} (${((info.data.value) * 100).toFixed(2)}%)`;
+            else{
+              return `Essa tag já foi cobrada ${info.data.absoluteValue} vezes no período selecionado`;
+              //return `${info.data.name} (${((info.data.value) * 100).toFixed(2)}%)`;
             }
           }
         },
@@ -177,5 +192,6 @@
     // Carrega o gráfico com os dados padrão
     submitData();
   </script>
+    
 </body>
 </html>

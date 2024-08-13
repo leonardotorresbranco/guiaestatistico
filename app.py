@@ -5,7 +5,7 @@ from collections import defaultdict, Counter
 app = Flask(__name__)
 
 # Carregar dados do arquivo JSON
-with open('qbank.qbank_prebuilt_testscomtodas.json', 'r', encoding='utf-8') as f:
+with open('qbank.qbank_prebuilt_tests_porinst.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 @app.route('/')

@@ -124,14 +124,12 @@ def filter_data():
         if 'children' in node and node['children']:
             # Calcula o total de contagem dos filhos para a tag atual
             child_count = sum(tag_count[child['_id']] for child in node['children'])
-            print(f"Calculando para a tag {node['name']}. Contagem dos filhos: {child_count}, Contagem da tag mãe: {tag_count[node['_id']]}")
 
             # Se a soma das contagens das tags filhas for menor que a contagem da tag mãe
             if child_count < tag_count[node['_id']]:
                 # Calcula a diferença e a frequência para a nova tag "Outras"
                 other_tag_count = tag_count[node['_id']] - child_count
                 other_tag_frequency = other_tag_count / tag_count[node['_id']] if sibling_count > 0 else 0
-                print(f"Tag 'Outras' criada para {node['name']}. Contagem: {other_tag_count}, Frequência: {other_tag_frequency}")
 
                 # Cria a nova tag "Outras"
                 other_tag = {
@@ -148,37 +146,30 @@ def filter_data():
 
                 # Atualiza a contagem dos filhos após adicionar a nova tag "Outras"
                 child_count = sum(tag_count[child['_id']] for child in node['children'])
-                print(f"Contagem dos filhos atualizada após adicionar 'Outras': {child_count}")
 
             # Atualiza a frequência de cada filho
-            print(f"sibli{sibling_count}")
             for child in node['children']:
                 if sibling_count > 0:
                     child['frequency'] = tag_count[child['_id']] / sibling_count
                 else:
                     child['frequency'] = 0
                     print("epa")
-                print(f"Frequência da tag filha {child['name']}: {child['frequency']}")
                 calculate_frequencies(child, tag_count[node['_id']])
-        print(f"sibli2{sibling_count}")
         # Calcula a frequência da tag atual em relação à soma das tags irmãs (sibling_count)
         if sibling_count > 0 and tag_count[node['_id']] > 0:
             node['frequency'] = tag_count[node['_id']] / sibling_count
         else:
             node['frequency'] = node['absoluteValue'] / sibling_count
-        print(f"Frequência da tag mãe {node['name']}: {node['frequency']}")
 
     # Calcular a frequência das tags primárias
     primary_tags = [tag for tag_id, tag in tag_tree.items() if tag['parentId'] is None]
     total_primary_count = sum(tag_count[tag['_id']] for tag in primary_tags)
-    print(f"Contagem total das tags primárias: {total_primary_count}")
 
     for tag in primary_tags:
         if total_primary_count > 0:
             tag['frequency'] = tag_count[tag['_id']] / total_primary_count
         else:
             tag['frequency'] = 0
-        print(f"Frequência da tag primária {tag['name']}: {tag['frequency']}")
         calculate_frequencies(tag, total_primary_count)
 
     
@@ -193,8 +184,8 @@ def filter_data():
         'children': primary_tags
     }
     
-    with open('hierarchical_data.json', 'w', encoding='utf-8') as f:
-        json.dump(hierarchical_data, f, ensure_ascii=False, indent=4)
+    #with open('hierarchical_data.json', 'w', encoding='utf-8') as f:
+     #   json.dump(hierarchical_data, f, ensure_ascii=False, indent=4)
 
     return jsonify(hierarchical_data)
 

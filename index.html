@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.5.1/nouislider.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.5.1/nouislider.min.js"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -48,6 +50,7 @@
       color: white;
       border: none;
       border-radius: 4px;
+      
     }
   </style>
   <style>
@@ -78,9 +81,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      flex-wrap: wrap;
       padding: 10px;
       margin-top: 20px;
+      gap: 10px; /* Adiciona espaço entre os elementos */
     }
   
     .form-container label {
@@ -88,10 +92,10 @@
       margin-right: 5px;
     }
   
-    .form-container select,
-    .form-container input {
+    .form-container select{
       padding: 5px;
       font-size: 14px;
+      margin-right: 25px;
     }
   
     .form-container button {
@@ -102,12 +106,16 @@
       border: none;
       cursor: pointer;
       border-radius: 4px;
+      margin-left: 25px;
     }
   
     .form-container button:hover {
       background-color: #0056b3;
     }
+  
+    
   </style>
+  
     <style>
       #toggleButton {
         padding: 5px 10px;
@@ -124,6 +132,13 @@
         background-color: #0056b3;
       }
     </style>
+    <style>
+      #yearRange {
+        margin: 20px 0;
+        width: 200px; /* Define uma largura para o range slider */
+        margin-right: 10px;
+      }
+    </style>
     
   
 </head>
@@ -137,16 +152,16 @@
     <label for="institution">Instituição:</label>
     <select id="institution" name="institution">
       <option value="1">USP-SP</option>
-    </select>
-
-    <label for="startYear">Ano Inicial:</label>
-    <input type="number" id="startYear" name="startYear" min="2015" max="2024" value="2020">
-
-    <label for="endYear">Ano Final:</label>
-    <input type="number" id="endYear" name="endYear" min="2020" max="2024" value="2024">
-
+    </select>   
+  
+    <label for="yearRange">Ano:</label>
+    <div id="yearRange"></div>
+    
     <button type="button" onclick="submitData()">Enviar</button>
   </div>
+  <input type="hidden" id="startYear" name="startYear">
+  <input type="hidden" id="endYear" name="endYear">
+  
   <button id="toggleButton" onclick="toggleForm()">Mostrar filtro</button>
   <div id="chart"></div>
 
@@ -194,21 +209,29 @@
 
     }
 
-    function toggleForm() {
-    var header = document.querySelector('header');
-    var formContainer = document.querySelector('.form-container');
-    var toggleButton = document.getElementById('toggleButton');
+  function toggleForm() {
+  var header = document.querySelector('header');
+  var formContainer = document.querySelector('.form-container');
+  var toggleButton = document.getElementById('toggleButton');
 
-    if (header.style.display === 'none') {
-      header.style.display = 'flex';
-      formContainer.style.display = 'flex';
-      toggleButton.textContent = 'Ocultar Filtro';
-    } else {
-      header.style.display = 'none';
-      formContainer.style.display = 'none';
-      toggleButton.textContent = 'Mostrar Filtro';
-    }
+  if (header.style.display === 'none') {
+    header.style.display = 'flex';
+    formContainer.style.display = 'flex';
+    toggleButton.textContent = 'Ocultar Filtro';
+  } else {
+    header.style.display = 'none';
+    formContainer.style.display = 'none';
+    toggleButton.textContent = 'Mostrar Filtro';
   }
+}
+
+// Garantir que o formulário esteja visível ao carregar a página
+document.addEventListener("DOMContentLoaded", function() {
+  header.style.display = 'flex';
+  formContainer.style.display = 'flex';
+  toggleButton.textContent = 'Ocultar Filtro';
+});
+
 
     function transformData(data) {
       function processNode(node) {
@@ -311,7 +334,38 @@
       chart.setOption(option);
     }
 
-    submitData();
+    //submitData();
   </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      var yearRange = document.getElementById('yearRange');
+  
+      noUiSlider.create(yearRange, {
+        start: [2020, 2024], // Valores iniciais do range
+        connect: true,
+        range: {
+          'min': 2015, // Ano mínimo
+          'max': 2024  // Ano máximo
+        },
+        step: 1, // Incremento de 1 ano
+        tooltips: [true, true], // Exibe os valores atuais como tooltips
+        format: {
+          to: function(value) {
+            return Math.round(value); // Arredonda os valores para inteiros
+          },
+          from: function(value) {
+            return Number(value);
+          }
+        }
+      });
+  
+      // Atualiza os valores dos inputs ocultos ao alterar o range slider
+      yearRange.noUiSlider.on('update', function(values, handle) {
+        document.getElementById('startYear').value = values[0];
+        document.getElementById('endYear').value = values[1];
+      });
+    });
+  </script>
+  
 </body>
 </html>

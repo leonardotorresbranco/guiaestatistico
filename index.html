@@ -8,7 +8,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>Guia Estatístico MedCof R1</title>
+  <title>Guia Estatístico MedCof TED</title>
   <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
   <style>
     #chart {
@@ -145,13 +145,12 @@
 <body>
   <header>
     <img src="https://login.medcof.com.br/medcof.svg" alt="Logo MedCof">
-    <h1>Guia Estatístico MedCof R1</h1>
+    <h1>Guia Estatístico MedCof TED</h1>
   </header>
 
   <div class="form-container">
     <label for="institution">Instituição:</label>
     <select id="institution" name="institution">
-      <option value="1">USP-SP</option>
     </select>   
   
     <label for="yearRange">Ano:</label>
@@ -239,13 +238,25 @@ document.addEventListener("DOMContentLoaded", function() {
         if(node.children.length>0){
           isnode = true;
         }
+        var itemsyey = "";
+        switch (node.name){
+          case "Cirurgia":
+            itemsyey = "rgba(154, 17, 17, 1)";
+            break;
+
+          default:
+            itemsyey = "rgba(154, 155, 17, 20)";
+            break;
+        }
+
 
         const result = {
           name: node.name,
           children: node.children ? node.children.map(processNode) : [],
           value: node.frequency || 0,
           absoluteValue: node.absoluteValue,
-          depth: isnode
+          depth: isnode,
+          itemStyle: {color: itemsyey }
         };
         
         if (result.children.length > 0) {
@@ -261,7 +272,7 @@ document.addEventListener("DOMContentLoaded", function() {
       const chartData = transformData(data);
       var institutione = document.getElementById('institution');
       var chart = echarts.init(document.getElementById('chart'));
-
+      console.log(chartData);
       var option = {
         title: {
           text: 'Guia estatístico MedCof R1',
@@ -293,7 +304,9 @@ document.addEventListener("DOMContentLoaded", function() {
           left: '10%',
           bottom: '2%',
           right: '20%',
+          //symbol: (value: Array|number, params: Object) => string,
           symbolSize: 10,
+          //symbol: 'image://https://www.svgrepo.com/download/303431/hello-kitty-logo.svg',          
           label: {
             position: 'up',
             verticalAlign: 'middle',
@@ -301,7 +314,7 @@ document.addEventListener("DOMContentLoaded", function() {
             fontSize: 9,
             formatter: function(info) {
               if (info.data.name === "Tags") {
-                return institutione.options[institutione.selectedIndex].text;
+                return "TED";
               } else {
                 return `${info.data.name} (${((info.data.value) * 100).toFixed(2)}%)`;
               }

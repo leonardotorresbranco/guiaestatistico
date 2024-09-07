@@ -64,8 +64,8 @@ def filter_data():
         #         tag_count[parent_id] += 0  # Garante que o parent_id seja contado mesmo que não apareça na lista de tags
 
     
-    with open('counter.json', 'w', encoding='utf-8') as f:
-        json.dump(tag_count, f, ensure_ascii=False, indent=4)
+    # with open('counter.json', 'w', encoding='utf-8') as f:
+    #     json.dump(tag_count, f, ensure_ascii=False, indent=4)
 
 
     tag_tree = {}
